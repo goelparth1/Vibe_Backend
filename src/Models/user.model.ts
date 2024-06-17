@@ -1,4 +1,4 @@
-import mongoose,{ Schema,model } from "mongoose";
+import mongoose,{ Schema,model,HydratedDocument,Document,Model} from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
@@ -13,7 +13,13 @@ interface IUser {
     viewHistory? : string[];
 
 }
-const userSchema = new Schema<IUser>({
+interface IUserMethods extends  Document{
+    generateRefreshToken : () => Promise<string>;
+    verifyPassword : (plainPassword : string) => Promise<boolean>;
+    generateAccessToken : () => Promise<string>;
+}
+type IUserModel = Model<IUser,{},IUserMethods>;
+const userSchema = new Schema<IUser,IUserModel>({
 name : {
     type : String,
     required : [true,"Name is required to register a user"],
@@ -45,7 +51,7 @@ avatar : {
 },
 bio : {
     type : String,
-    default : "",
+    default : "Hey there! I am using Vibe.",
 },
 refereshToken : {
     type : String
@@ -60,9 +66,20 @@ viewHistory : [
     timestamps: true,
 });
 
+
+userSchema.methods.generateRefreshToken = async function(){
+    return  await jwt.sign({
+        _id : this._id,
+    },
+    (process.env.JWT_REFRESH_TOKEN_SECRET!),
+    {
+        expiresIn : process.env.JWT_REFRESH_TOKEN_EXPIRY,
+    });
+}
+
 //pre hook runs before saving,editinh the doc 
 //mongoose know this is type of mongoose.document & User
-userSchema.pre("save", async function(next){
+userSchema.pre("save", async function( this:HydratedDocument<IUser,IUserMethods>,next){
     if(!this.isModified("password")) next() ; 
     // bcrypt.hash(this.password, 10, (err, hash) => {
     //     if(err) next(err);
@@ -72,6 +89,9 @@ userSchema.pre("save", async function(next){
 try {
     const pass  =  await bcrypt.hash(this.password, 10);
     this.password = pass;
+    if(!this.isNew) next();
+    this.refereshToken =  await this.generateRefreshToken();
+    next();
 }catch(err){
     next(err as Error);
 }});
@@ -81,15 +101,7 @@ userSchema.methods.verifyPassword = async function(plainPassword : string){
     return await bcrypt.compare(plainPassword, this.password);
 }
 
-userSchema.methods.generateRefreshToken = async function(){
-    const refreshToken = await jwt.sign({
-        _id : this._id,
-    },
-    (process.env.JWT_REFRESH_TOKEN_SECRET!),
-    {
-        expiresIn : process.env.JWT_REFRESH_TOKEN_EXPIRY,
-    });
-}
+
 
 userSchema.methods.generateAccessToken = async function(){
     const accessToken = await jwt.sign({
@@ -105,4 +117,4 @@ userSchema.methods.generateAccessToken = async function(){
     });
 }
 
-export const User = model<IUser>("User", userSchema);
+export const User = model<IUser,IUserModel>("User", userSchema);
