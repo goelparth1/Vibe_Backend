@@ -10,9 +10,7 @@ app.use(cors( {
 } ));
 
 //to get body obj 
-app.use(express.json({
-    limit : "16kb"
-}));
+app.use(express.json());
 
 //to excess info from urls 
 
@@ -24,6 +22,10 @@ app.use(express.urlencoded({
 app.use(cookieparser());
 
 app.use(express.static("public"));
+
+//import userRouter
+import userRouter from "./Routes/user.route.js";
+app.use("/api/v1/user",userRouter);
 
 
 export default app;

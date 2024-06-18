@@ -2,8 +2,8 @@ import { User } from "../Models/user.model.js";
 import { Request, Response, NextFunction , } from 'express';
 import userZodSchema from "../Validation/user.validation.js";
 import { z } from "zod";
-import ApiResponse from "@/Utils/ApiResponse.js";
-import ApiError from "@/Utils/ApiError.js";
+import ApiResponse from "../Utils/ApiResponse.js";
+import ApiError from "../Utils/ApiError.js";
 import { HydratedDocument } from "mongoose";
 import { isInt8Array } from "util/types";
 
@@ -15,7 +15,9 @@ type expressMethodParams = {
     
 }
 
-const registerUser = async ({ req , res , next } : expressMethodParams ) => {
+const registerUser = async ( req :Request, res :Response , next : NextFunction  ) => {
+
+    // console.log("in the req ",req.body)
     const { name, username, email, password } = req.body || {} ;
     //optional empty object if req.body is undefined will save us from error
     const registerZodSchema = userZodSchema.pick({name : true,username : true, email : true, password : true});
@@ -74,7 +76,26 @@ const registerUser = async ({ req , res , next } : expressMethodParams ) => {
     res.status(200)
     .cookie("refreshToken", refreshToken, cookieOptions)
     .cookie("accessToken", accessToken, cookieOptions)
-    .json( new ApiResponse("User successfully registered", 200, {accessToken, refreshToken, user : savedUser} ))
+    .json( new ApiResponse("User successfully registered", 200, { user : savedUser} ))
 
     
     };
+
+const loginUser = async ( req :Request, res :Response , next : NextFunction  ) => {
+    const { email, password ,username } = req.body || {} ;
+    //optional empty object if req.body is undefined will save us from error
+
+    //now we need to find which of email or username is provided
+
+    const loginZodSchema = userZodSchema.pick({email : true, password : true});
+    
+  
+}
+
+
+
+
+
+    export {
+        registerUser,
+    }

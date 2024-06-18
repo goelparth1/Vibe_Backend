@@ -68,13 +68,22 @@ viewHistory : [
 
 
 userSchema.methods.generateRefreshToken = async function(){
-    return  await jwt.sign({
+    // console.log(process.env.JWT_REFRESH_TOKEN_EXPIRY,typeof process.env.JWT_REFRESH_TOKEN_EXPIRY)
+    // console.log(this._id,typeof this._id)
+    const payload = {
+        name : "random",
         _id : this._id,
-    },
-    (process.env.JWT_REFRESH_TOKEN_SECRET!),
-    {
-        expiresIn : process.env.JWT_REFRESH_TOKEN_EXPIRY,
-    });
+        
+    }
+    return await  jwt.sign(
+        {
+            _id : this._id
+        },
+        process.env.JWT_REFRESH_TOKEN_SECRET!,
+        {
+            expiresIn : process.env.JWT_REFRESH_TOKEN_EXPIRY
+        }
+     );
 }
 
 //pre hook runs before saving,editinh the doc 
@@ -111,10 +120,11 @@ userSchema.methods.generateAccessToken = async function(){
         avatar : this.avatar,
         name : this.name,
     },
-    (process.env.JWT_ACCESS_TOKEN_SECRET!),
+    process.env.JWT_ACCESS_TOKEN_SECRET!,
     {
-        expiresIn : process.env.JWT_ACCESS_TOKEN_EXPIRY,
-    });
+        expiresIn : process.env.JWT_REFRESH_TOKEN_EXPIRY
+    }
+    );
 }
 
 export const User = model<IUser,IUserModel>("User", userSchema);
