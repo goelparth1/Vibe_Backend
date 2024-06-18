@@ -126,6 +126,7 @@ const loginUser = async ( req :Request, res :Response , next : NextFunction  ) =
     //generate new accessToken and refreshToken
     const accessToken = await searchedUser.generateAccessToken();
     const refereshToken = await searchedUser.generateRefreshToken();
+    // console.log("searchedUserOldRefereshToken",searchedUser.refereshToken);
      searchedUser.refereshToken = refereshToken;
     await  searchedUser.save({
         validateBeforeSave : false
@@ -137,7 +138,7 @@ const loginUser = async ( req :Request, res :Response , next : NextFunction  ) =
         httpOnly : true,
         secure : true,
     }
-    console.log("searchedUserOldRefereshToken",searchedUser.refereshToken);
+
     searchedUser.password = "";
     searchedUser.refereshToken = undefined;
 
