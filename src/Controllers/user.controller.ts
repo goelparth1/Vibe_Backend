@@ -1,4 +1,5 @@
 import { User } from "../Models/user.model.js";
+import { Types } from "mongoose";
 import { Request, Response, NextFunction , } from 'express';
 import userZodSchema from "../Validation/user.validation.js";
 import { z } from "zod";
@@ -6,6 +7,16 @@ import ApiResponse from "../Utils/ApiResponse.js";
 import ApiError from "../Utils/ApiError.js";
 import { HydratedDocument } from "mongoose";
 import { isInt8Array } from "util/types";
+import jwt from "jsonwebtoken";
+
+export type frontEndUser = {
+        _id : Types.ObjectId;
+        name : string,
+        username : string,
+        email: string,
+        avatar : string,
+        bio : string, 
+}
 
 type expressMethodParams = {
     req : Request,
@@ -181,6 +192,92 @@ const logOut = async ( req :Request, res :Response , next : NextFunction  ) => {
 
 }
 
+const getUser = async ( req :Request, res :Response , next : NextFunction  ) => {
+    const userId = req.user?._id;
+    if(!userId){
+        throw new ApiError("Unauthorised request", 489, null);
+    }
+
+    const user = await User.findById(userId).catch(err => {
+        throw new ApiError("Error in getting user", 489, err);
+    });
+    if(!user){
+        throw new ApiError("User not found", 489, null);
+    }
+    const userToSend : frontEndUser = {
+        _id : user._id as Types.ObjectId,
+        name : user.name,
+        username : user.username,
+        email : user.email,
+        avatar : user.avatar as string,
+        bio : user.bio!
+    
+    }
+
+    res.status(200)
+    .json( new ApiResponse("User successfully fetched", 200, userToSend ))
+}
+
+const getNewAccessToken = async ( req :Request, res :Response , next : NextFunction  ) => {
+    const refereshToken = req.cookies?.refreshToken;
+    if(!refereshToken){
+        throw new ApiError("Unauthorised Request", 401, null);
+    }
+    try{
+    const decodedRtoken = jwt.verify(refereshToken, process.env.JWT_REFRESH_TOKEN_SECRET as string);
+    const user : any = await  (User.findById((decodedRtoken as jwt.JwtPayload)._id))
+    const newAccessToken = user.generateAccessToken();
+
+    const cookieOptions = {
+        httpOnly : true,
+        secure : true,
+    } 
+    res.status(200).cookie("accessToken", newAccessToken, cookieOptions).json(new ApiResponse("New Access Token generated", 200, null));
+    }catch(err){
+        throw new ApiError("Error in getting new access token", 489, err);
+    } //if ye error throw karta hain to front end se logout kardenge 
+}
+
+const updateUser = async ( req :Request, res :Response , next : NextFunction  ) => {
+    const userId = req.user?._id;
+    if(!userId){
+        throw new ApiError("Unauthorised request", 489, null);
+    }
+
+    const { name, username, email, bio, avatar } = req.body || {} ;
+    //optional empty object if req.body is undefined will save us from error
+    const updateUserZodSchema = userZodSchema.partial();
+    
+    //safeParsing our data 
+    const safeParsedUpdateUserZodSchema = updateUserZodSchema.safeParse({name, username, email, bio, avatar})
+    if(!safeParsedUpdateUserZodSchema.success){
+        //console.log(safeParsedRegisterZodSchema.error);
+      new ApiError(safeParsedUpdateUserZodSchema.error.errors[0].message, 489, safeParsedUpdateUserZodSchema.error)
+    }
+    //now data validation ho gyi 
+    //update user 
+    const user = await User.findByIdAndUpdate(userId,{
+        name, username, email, bio, avatar
+    },{
+        new : true
+    }).catch(err => {
+        throw new ApiError("Error in updating user", 489, err);
+    });
+    if(!user){
+        throw new ApiError("Something went wrong while updating", 489, null);
+    }
+    const userToSend : frontEndUser = {
+        _id : user._id as Types.ObjectId,
+        name : user.name,
+        username : user.username,
+        email : user.email,
+        avatar : user.avatar as string,
+        bio : user.bio!
+    }
+
+    res.status(200).json(new ApiResponse("User successfully updated", 200, userToSend));
+
+}
 
 
 
@@ -188,4 +285,5 @@ const logOut = async ( req :Request, res :Response , next : NextFunction  ) => {
         registerUser,
         loginUser,
         logOut,
+        getUser,
     }

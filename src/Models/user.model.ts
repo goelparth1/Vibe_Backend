@@ -1,4 +1,4 @@
-import mongoose,{ Schema,model,HydratedDocument,Document,Model} from "mongoose";
+import mongoose,{ Schema,model,HydratedDocument,Document,Model,Types} from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
@@ -114,7 +114,7 @@ userSchema.methods.verifyPassword = async function(plainPassword : string){
 
 userSchema.methods.generateAccessToken = async function(){
     const accessToken = await jwt.sign({
-        _id : this._id,
+        _id : this._id as Types.ObjectId,
         email : this.email,
         username : this.username,
         avatar : this.avatar,
