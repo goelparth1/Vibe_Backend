@@ -119,6 +119,8 @@ userSchema.methods.generateAccessToken = async function(){
         username : this.username,
         avatar : this.avatar,
         name : this.name,
+        bio : this.bio,
+        viewHistory : this.viewHistory,
     },
     process.env.JWT_ACCESS_TOKEN_SECRET!,
     {
