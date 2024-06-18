@@ -86,10 +86,66 @@ const loginUser = async ( req :Request, res :Response , next : NextFunction  ) =
     //optional empty object if req.body is undefined will save us from error
 
     //now we need to find which of email or username is provided
+    if((!email)&&(!username)){
+        throw new ApiError("Email or Username is required", 421, null);
+    }
+    let loginUserZodSchema;
+    let safeParsedLoginUserZodSchema;
+    let searchedUser;
+    if(email){
+        loginUserZodSchema = userZodSchema.pick({email : true, password : true});
+        safeParsedLoginUserZodSchema = loginUserZodSchema.safeParse({email, password});
+        if(!safeParsedLoginUserZodSchema.success){
+            throw new ApiError(safeParsedLoginUserZodSchema.error.errors[0].message, 489, safeParsedLoginUserZodSchema.error)
+        }
+        searchedUser = await User.findOne({email}).catch(err => {
+            throw new ApiError("Error in finding user while logging in", 489, err);
+        });
+    }else{
+        loginUserZodSchema = userZodSchema.pick({username : true, password : true});
+        safeParsedLoginUserZodSchema = loginUserZodSchema.safeParse({ password, username})
+        if(!safeParsedLoginUserZodSchema.success){
+            throw new ApiError(safeParsedLoginUserZodSchema.error.errors[0].message, 489, safeParsedLoginUserZodSchema.error)
+        };
+        searchedUser = await User.findOne({username}).catch(err => {
+            throw new ApiError("Error in finding user while logging in", 489, err);
+        });
+    };
 
-    const loginZodSchema = userZodSchema.pick({email : true, password : true});
-    
-  
+    if(!searchedUser){
+        throw new ApiError("User do not exists", 492, null);
+    };
+    //now we have user
+    //check password
+    const passwordMatch = await searchedUser.verifyPassword(password);
+
+    if(!passwordMatch){
+        throw new ApiError("Password do not match", 493, null);
+    }
+    //password match
+    //generate new accessToken and refreshToken
+    const accessToken = await searchedUser.generateAccessToken();
+    const refereshToken = await searchedUser.generateRefreshToken();
+     searchedUser.refereshToken = refereshToken;
+    await  searchedUser.save({
+        validateBeforeSave : false
+    }).catch((err)=>{
+        throw new ApiError("Error in saving refreshToken to DB in LoginController", 494, err);
+    });
+ // new referesh token is stored in DB
+    const cookieOptions = {
+        httpOnly : true,
+        secure : true,
+    }
+    console.log("searchedUserOldRefereshToken",searchedUser.refereshToken);
+    searchedUser.password = "";
+    searchedUser.refereshToken = undefined;
+
+    res.status(200)
+    .cookie("refreshToken", refereshToken, cookieOptions)
+    .cookie("accessToken", accessToken, cookieOptions)
+    .json( new ApiResponse("User successfully logged in", 200, { user : searchedUser} ))
+
 }
 
 
@@ -98,4 +154,5 @@ const loginUser = async ( req :Request, res :Response , next : NextFunction  ) =
 
     export {
         registerUser,
+        loginUser,
     }
