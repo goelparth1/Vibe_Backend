@@ -5,8 +5,6 @@ import userZodSchema from "../Validation/user.validation.js";
 import { z } from "zod";
 import ApiResponse from "../Utils/ApiResponse.js";
 import ApiError from "../Utils/ApiError.js";
-import { HydratedDocument } from "mongoose";
-import { isInt8Array } from "util/types";
 import jwt from "jsonwebtoken";
 
 export type frontEndUser = {
@@ -225,14 +223,18 @@ const getNewAccessToken = async ( req :Request, res :Response , next : NextFunct
     }
     try{
     const decodedRtoken = jwt.verify(refereshToken, process.env.JWT_REFRESH_TOKEN_SECRET as string);
-    const user : any = await  (User.findById((decodedRtoken as jwt.JwtPayload)._id))
-    const newAccessToken = user.generateAccessToken();
+    
+    const user:any  = await  (User.findById((decodedRtoken as {_id:Types.ObjectId})._id)).catch(err =>{ throw err })
+    // console.log("we are at user",user.generateAccessToken);
+    const newAccessToken = await  user.generateAccessToken();
+    // console.log("newAccessToken",newAccessToken)
 
     const cookieOptions = {
         httpOnly : true,
         secure : true,
     } 
-    res.status(200).cookie("accessToken", newAccessToken, cookieOptions).json(new ApiResponse("New Access Token generated", 200, null));
+    res.status(200).cookie("accessToken", newAccessToken, cookieOptions)
+    .json(new ApiResponse("New Access Token generated", 200, null));
     }catch(err){
         throw new ApiError("Error in getting new access token", 489, err);
     } //if ye error throw karta hain to front end se logout kardenge 

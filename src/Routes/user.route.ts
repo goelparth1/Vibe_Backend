@@ -6,7 +6,7 @@ import { registerUser,
     updateUser,
     getNewAccessToken } from "../Controllers/user.controller.js";
 import authMiddleware from "../Middlewares/auth.middleware.js";
-import asyncHandler from "@/Utils/asyncHandler.js";
+import asyncHandler from "../Utils/asyncHandler.js";
 
 const router = Router();
 
@@ -18,7 +18,7 @@ router.route("/login").get(loginUser);
 
 router.route("/logout").get(errorsafeAuth,logOut);
 
-router.route("/getNewRefereshToken").post(errorsafeAuth,getNewAccessToken);
+router.route("/getNewAccessToken").post(getNewAccessToken);
 
 router.route("/getUser").get(errorsafeAuth,getUser);
 

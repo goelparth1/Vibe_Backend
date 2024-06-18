@@ -1,7 +1,8 @@
+import { dot } from "node:test/reporters";
 import connectDB from "./DB/index.js";
 import app from "./app.js";
 
-
+import 'dotenv/config'
 connectDB()
 .then( () => {
   app.on( "error" , ( error ) => {

@@ -1,6 +1,6 @@
-import ApiError from '@/Utils/ApiError.js';
+import ApiError from '../Utils/ApiError.js';
 import {Request, Response, NextFunction} from 'express';
-import jwt, { JsonWebTokenError, JwtPayload, TokenExpiredError } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import { User } from "../Models/user.model.js"
 import type { authRequest } from "../types.js";
 import { Types } from 'mongoose';
@@ -71,9 +71,9 @@ const authMiddleware = (req:Request, _ : Response, next:NextFunction) => {
     req.user = decodedAtoken as accessTokenPayload;
     next();
     }catch(err){
-        if(err instanceof TokenExpiredError){
-            throw new ApiError("Access Token Expired", 401, err);
-        }else if(err instanceof JsonWebTokenError){
+        if(err instanceof jwt.TokenExpiredError){
+            throw new ApiError("Access Token Expired", 403, err);
+        }else if(err instanceof jwt.JsonWebTokenError){
             throw new ApiError("Access Token is malacious", 401, err);
         }else{
             throw new ApiError("Error in verifying Access Token", 401, err);

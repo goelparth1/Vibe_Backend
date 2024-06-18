@@ -127,6 +127,7 @@ userSchema.methods.generateAccessToken = async function(){
         expiresIn : process.env.JWT_REFRESH_TOKEN_EXPIRY
     }
     );
+    return accessToken;
 }
 
 export const User = model<IUser,IUserModel>("User", userSchema);
