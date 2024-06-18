@@ -4,6 +4,7 @@ import jwt, { JsonWebTokenError, JwtPayload, TokenExpiredError } from 'jsonwebto
 import { User } from "../Models/user.model.js"
 import type { authRequest } from "../types.js";
 import { HydratedDocument } from 'mongoose';
+// import { IUser } from '../';
  
 
 
@@ -57,7 +58,9 @@ const authMiddleware = (req:Request, _ : Response, next:NextFunction) => {
     // }
     //we have to extract user from cookie
     const decodedAtoken = jwt.verify(Atoken ,process.env.JWT_ACCESS_TOKEN_SECRET as string);
-    
+    req.user = decodedAtoken as authRequest["user"] ;
+    next();
+
 
 }
 

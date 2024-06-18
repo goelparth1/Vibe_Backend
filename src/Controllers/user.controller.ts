@@ -149,6 +149,37 @@ const loginUser = async ( req :Request, res :Response , next : NextFunction  ) =
 
 }
 
+const logOut = async ( req :Request, res :Response , next : NextFunction  ) => {
+    const userId = req.user?._id;
+    if(!userId){
+        throw new ApiError("Unauthorised request", 489, null);
+    }
+
+    //By default, findOneAndUpdate() returns the document as it was before update was applied. If you set new: true, findOneAndUpdate() will instead give you the object after update was applied.
+    //unset will unset the field from the document
+    const user = await User.findByIdAndUpdate({
+        _id : userId
+    },{
+       $unset : {
+              refereshToken : 1
+         }
+    },{
+        new : true
+    }).catch(err => {
+        throw new ApiError("Error in logging out", 489, err);
+    });
+    
+     const cookieOptions = {
+        httpOnly : true,
+        secure : true,
+     }
+
+     res.status(200)
+     .clearCookie("refreshToken", cookieOptions)
+     .clearCookie("accessToken", cookieOptions)
+     .json( new ApiResponse("User successfully logged out", 200, null ))
+
+}
 
 
 
@@ -156,4 +187,5 @@ const loginUser = async ( req :Request, res :Response , next : NextFunction  ) =
     export {
         registerUser,
         loginUser,
+        logOut
     }
