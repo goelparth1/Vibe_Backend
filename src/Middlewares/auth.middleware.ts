@@ -3,9 +3,18 @@ import {Request, Response, NextFunction} from 'express';
 import jwt, { JsonWebTokenError, JwtPayload, TokenExpiredError } from 'jsonwebtoken';
 import { User } from "../Models/user.model.js"
 import type { authRequest } from "../types.js";
-import { HydratedDocument } from 'mongoose';
+import { Types } from 'mongoose';
 // import { IUser } from '../';
  
+type accessTokenPayload = {
+    name : string ,
+    username : string,
+    email : string,
+    avatar? : string,
+    bio? : string,
+    viewHistory? : Types.ObjectId[],
+    _id : Types.ObjectId,
+}
 
 
 const authMiddleware = (req:Request, _ : Response, next:NextFunction) => {
@@ -57,9 +66,23 @@ const authMiddleware = (req:Request, _ : Response, next:NextFunction) => {
     // }
     // }
     //we have to extract user from cookie
-    const decodedAtoken = jwt.verify(Atoken ,process.env.JWT_ACCESS_TOKEN_SECRET as string);
-    req.user = decodedAtoken as authRequest["user"] ;
+    try{
+    const decodedAtoken = jwt.verify(Atoken ,process.env.JWT_ACCESS_TOKEN_SECRET as string)
+    req.user = decodedAtoken as accessTokenPayload;
     next();
+    }catch(err){
+        if(err instanceof TokenExpiredError){
+            throw new ApiError("Access Token Expired", 401, err);
+        }else if(err instanceof JsonWebTokenError){
+            throw new ApiError("Access Token is malacious", 401, err);
+        }else{
+            throw new ApiError("Error in verifying Access Token", 401, err);
+        }
+    }
+
+
+    //on frontend if 401 is received and accessToken is expired we will regenerate accessToken and refreshToken ,else at all 401 requests we will relogin
+    
 
 
 }

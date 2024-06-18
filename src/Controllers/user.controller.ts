@@ -187,5 +187,5 @@ const logOut = async ( req :Request, res :Response , next : NextFunction  ) => {
     export {
         registerUser,
         loginUser,
-        logOut
+        logOut,
     }
