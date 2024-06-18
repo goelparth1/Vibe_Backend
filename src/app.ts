@@ -26,7 +26,9 @@ app.use(cors( {
 } ));
 
 //to get body obj 
-app.use(express.json());
+app.use(express.json({
+    limit : "16kb",
+}));
 
 //to excess info from urls 
 

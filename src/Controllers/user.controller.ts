@@ -286,4 +286,6 @@ const updateUser = async ( req :Request, res :Response , next : NextFunction  ) 
         loginUser,
         logOut,
         getUser,
+        updateUser,
+        getNewAccessToken
     }
