@@ -1,9 +1,25 @@
 import express from "express";
 import cors from "cors";
 import cookieparser from "cookie-parser";
+import { Types } from "mongoose";
 
 const app = express();
 
+declare global {
+    namespace Express {
+      interface Request {
+        user : {
+        name : string ,
+        username : string,
+        email : string,
+        avatar? : string,
+        bio? : string,
+        viewHistory? : Types.ObjectId[],
+        _id : Types.ObjectId,
+        }
+      }
+    }
+  }
 app.use(cors( {
     origin : process.env.CORS_ORIGIN,
     credentials : true,
