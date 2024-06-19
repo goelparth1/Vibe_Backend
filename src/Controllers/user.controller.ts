@@ -79,7 +79,7 @@ const registerUser = async ( req :Request, res :Response , next : NextFunction  
     savedUser.password = "";
     const cookieOptions = {
         httpOnly : true,
-        secure : true,
+        // secure : true,
     }
 
     res.status(200)
@@ -145,7 +145,7 @@ const loginUser = async ( req :Request, res :Response , next : NextFunction  ) =
  // new referesh token is stored in DB
     const cookieOptions = {
         httpOnly : true,
-        secure : true,
+        // secure : true,
     }
 
     searchedUser.password = "";
@@ -180,7 +180,7 @@ const logOut = async ( req :Request, res :Response , next : NextFunction  ) => {
     
      const cookieOptions = {
         httpOnly : true,
-        secure : true,
+        // secure : true,
      }
 
      res.status(200)
@@ -231,7 +231,7 @@ const getNewAccessToken = async ( req :Request, res :Response , next : NextFunct
 
     const cookieOptions = {
         httpOnly : true,
-        secure : true,
+        // secure : true,  client will send back cookie only if conn is https
     } 
     res.status(200).cookie("accessToken", newAccessToken, cookieOptions)
     .json(new ApiResponse("New Access Token generated", 200, null));
