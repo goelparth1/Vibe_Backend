@@ -84,14 +84,14 @@ const registerUser = async ( req :Request, res :Response , next : NextFunction  
         domain : "http://localhost:5173",
         sameSite : "none",
         secure : true,
-        path : "/signUP",
+        // path : "/signUP",
         maxAge : 1000*60*60*24*30,
     })
     .cookie("accessToken", accessToken,{
-        sameSite:"lax",
-        path : "/signUp",
-        domain: "http://localhost:5173",
-        maxAge : 1000*60*60*24*30,
+        sameSite : "none",
+        secure : false,
+        // path: "/",
+        maxAge : 1000*60*60*24*7,
     })
     .json( new ApiResponse("User successfully registered", 200, { user : savedUser , accessToken} ))
 
@@ -166,14 +166,16 @@ const loginUser = async ( req :Request, res :Response , next : NextFunction  ) =
 
     res.status(200)
     .cookie("refreshToken", refereshToken, {
+        domain : "http://localhost:5173",
         sameSite : "none",
-        secure : false,
-
+        secure : true,
+        // path : "/signUP",
+        maxAge : 1000*60*60*24*30,
     })
     .cookie("accessToken", accessToken, {
         sameSite : "none",
         secure : false,
-        path: "/",
+        // path: "/",
         maxAge : 1000*60*60*24*7,
     })
     .json( new ApiResponse("User successfully logged in", 200, { user : searchedUser , accessToken} ))
@@ -200,14 +202,22 @@ const logOut = async ( req :Request, res :Response , next : NextFunction  ) => {
         throw new ApiError("Error in logging out", 489, err);
     });
     
-     const cookieOptions = {
-        httpOnly : true,
-        secure : true
-     }
+    
 
      res.status(200)
-     .clearCookie("refreshToken", cookieOptions)
-     .clearCookie("accessToken", cookieOptions)
+     .clearCookie("refreshToken", {
+        domain : "http://localhost:5173",
+        sameSite : "none",
+        secure : true,
+        // path : "/signUP",
+        maxAge : 1000*60*60*24*30,
+    })
+     .clearCookie("accessToken", {
+        sameSite : "none",
+        secure : false,
+        // path: "/",
+        maxAge : 1000*60*60*24*7,
+    })
      .json( new ApiResponse("User successfully logged out", 200, null ))
 
 }
