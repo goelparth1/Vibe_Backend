@@ -22,7 +22,9 @@ const authMiddleware = (req:Request, _ : Response, next:NextFunction) => {
     throw new ApiError("No request found in authMiddleware", 489 ,null);
    }
 
-    const Atoken : string  = req.cookies?.accessToken;
+   console.log("This is ReqHeaders ",req.headers);
+
+    const Atoken : string  = req.header("Authorization")?.replace("Bearer ", "")||req.cookies?.accessToken 
     if(!Atoken){
         throw new ApiError("No Access Token found", 401, null);
     }
@@ -67,7 +69,7 @@ const authMiddleware = (req:Request, _ : Response, next:NextFunction) => {
     // }
     //we have to extract user from cookie
     try{
-    const decodedAtoken = jwt.verify(Atoken ,process.env.JWT_ACCESS_TOKEN_SECRET as string)
+    const decodedAtoken = jwt.decode(Atoken)
     req.user = decodedAtoken as accessTokenPayload;
     next();
     }catch(err){

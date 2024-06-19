@@ -20,7 +20,11 @@ declare global {
       }
     }
   }
-app.use(cors());
+app.use(cors({
+  origin : "http://localhost:5173",
+  credentials : true,
+  allowedHeaders : ["Content-Type","Authorization"],
+}));
 
 //to get body obj 
 app.use(express.json({

@@ -78,15 +78,22 @@ const registerUser = async ( req :Request, res :Response , next : NextFunction  
     savedUser.refereshToken = undefined;
     savedUser.password = "";
     console.log("hello");
-    const cookieOptions = {
-        httpOnly : true,
-        // secure : true,
-    }
 
     res.status(200)
-    .cookie("refreshToken", refreshToken, cookieOptions)
-    .cookie("accessToken", accessToken, cookieOptions)
-    .json( new ApiResponse("User successfully registered", 200, { user : savedUser} ))
+    .cookie("refreshToken", refreshToken, {
+        domain : "http://localhost:5173",
+        sameSite : "none",
+        secure : true,
+        path : "/signUP",
+        maxAge : 1000*60*60*24*30,
+    })
+    .cookie("accessToken", accessToken,{
+        sameSite:"lax",
+        path : "/signUp",
+        domain: "http://localhost:5173",
+        maxAge : 1000*60*60*24*30,
+    })
+    .json( new ApiResponse("User successfully registered", 200, { user : savedUser , accessToken} ))
 
     
     };
@@ -145,17 +152,29 @@ const loginUser = async ( req :Request, res :Response , next : NextFunction  ) =
     });
  // new referesh token is stored in DB
     const cookieOptions = {
-        httpOnly : true,
-        secure : true,
+        // httpOnly : true,
+        // secure : true,
+         sameSite : "None",
+         secure : false,
+        
     }
 
     searchedUser.password = "";
     searchedUser.refereshToken = undefined;
 
     res.status(200)
-    .cookie("refreshToken", refereshToken, cookieOptions)
-    .cookie("accessToken", accessToken, cookieOptions)
-    .json( new ApiResponse("User successfully logged in", 200, { user : searchedUser} ))
+    .cookie("refreshToken", refereshToken, {
+        sameSite : "none",
+        secure : false,
+
+    })
+    .cookie("accessToken", accessToken, {
+        sameSite : "none",
+        secure : false,
+        path: "/",
+        maxAge : 1000*60*60*24*7,
+    })
+    .json( new ApiResponse("User successfully logged in", 200, { user : searchedUser , accessToken} ))
 
 }
 
@@ -215,7 +234,7 @@ const getUser = async ( req :Request, res :Response , next : NextFunction  ) => 
     console.log("userToSend",userToSend)
 
     res.status(200)
-    .json( new ApiResponse("User successfully fetched", 200, userToSend ))
+    .json( new ApiResponse("User successfully fetched", 200, userToSend  ))
 }
 
 const getNewAccessToken = async ( req :Request, res :Response , next : NextFunction  ) => {
@@ -232,12 +251,12 @@ const getNewAccessToken = async ( req :Request, res :Response , next : NextFunct
     // console.log("newAccessToken",newAccessToken)
 
     const cookieOptions = {
-        httpOnly : true,
-        // secure : true,  client will send back cookie only if conn is https
-        secure : true,
+        // httpOnly : true,
+        // // secure : true,  client will send back cookie only if conn is https
+        // secure : true,
     } 
     res.status(200).cookie("accessToken", newAccessToken, cookieOptions)
-    .json(new ApiResponse("New Access Token generated", 200, null));
+    .json(new ApiResponse("New Access Token generated", 200, {accessToken : newAccessToken}));
     }catch(err){
         throw new ApiError("Error in getting new access token", 489, err);
     } //if ye error throw karta hain to front end se logout kardenge 
