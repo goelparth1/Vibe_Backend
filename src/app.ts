@@ -20,10 +20,7 @@ declare global {
       }
     }
   }
-app.use(cors( {
-    origin : process.env.CORS_ORIGIN,
-    credentials : true,
-} ));
+app.use(cors( ));
 
 //to get body obj 
 app.use(express.json({
@@ -45,5 +42,9 @@ app.use(express.static("public"));
 import userRouter from "./Routes/user.route.js";
 app.use("/api/v1/user",userRouter);
 
+
+
+//global catches 
+// app.use((req:Request,res:Response,next:,err) =>{
 
 export default app;

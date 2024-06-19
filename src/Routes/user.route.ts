@@ -12,17 +12,18 @@ const router = Router();
 
 const errorsafeAuth = asyncHandler(authMiddleware);
 
-router.route("/register").post(registerUser);
 
-router.route("/login").get(loginUser);
+router.route("/register").post(asyncHandler(registerUser));
 
-router.route("/logout").get(errorsafeAuth,logOut);
+router.route("/login").get(asyncHandler(loginUser));
 
-router.route("/getNewAccessToken").post(getNewAccessToken);
+router.route("/logout").get(errorsafeAuth,asyncHandler(logOut));
 
-router.route("/getUser").get(errorsafeAuth,getUser);
+router.route("/getNewAccessToken").post(asyncHandler(getNewAccessToken));
 
-router.route("/updateUser").patch(errorsafeAuth,updateUser);
+router.route("/getUser").get(errorsafeAuth,asyncHandler(getUser));
+
+router.route("/updateUser").patch(errorsafeAuth,asyncHandler(updateUser));
 
 
 export default router;
