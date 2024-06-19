@@ -77,10 +77,10 @@ const registerUser = async ( req :Request, res :Response , next : NextFunction  
     
     savedUser.refereshToken = undefined;
     savedUser.password = "";
-    
+    console.log("hello");
     const cookieOptions = {
         httpOnly : true,
-        secure : true,
+        // secure : true,
     }
 
     res.status(200)
@@ -208,10 +208,11 @@ const getUser = async ( req :Request, res :Response , next : NextFunction  ) => 
         name : user.name,
         username : user.username,
         email : user.email,
-        avatar : user.avatar as string,
+        avatar : user.avatar!,
         bio : user.bio!
     
     }
+    console.log("userToSend",userToSend)
 
     res.status(200)
     .json( new ApiResponse("User successfully fetched", 200, userToSend ))
@@ -225,9 +226,9 @@ const getNewAccessToken = async ( req :Request, res :Response , next : NextFunct
     try{
     const decodedRtoken = jwt.verify(refereshToken, process.env.JWT_REFRESH_TOKEN_SECRET as string);
     
-    const user:any  = await  (User.findById((decodedRtoken as {_id:Types.ObjectId})._id)).catch(err =>{ throw err })
+    const user  = await  (User.findById((decodedRtoken as {_id:Types.ObjectId})._id)).catch(err =>{ throw err })
     // console.log("we are at user",user.generateAccessToken);
-    const newAccessToken = await  user.generateAccessToken();
+    const newAccessToken = await  user!.generateAccessToken();
     // console.log("newAccessToken",newAccessToken)
 
     const cookieOptions = {

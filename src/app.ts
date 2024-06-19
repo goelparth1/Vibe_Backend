@@ -20,7 +20,7 @@ declare global {
       }
     }
   }
-app.use(cors( ));
+app.use(cors());
 
 //to get body obj 
 app.use(express.json({

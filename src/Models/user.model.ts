@@ -47,7 +47,7 @@ password : {
 },
 avatar : {
     type : String,//cloudinary url 
-    default : process.env.CLOUDINARY_DEFAULT_AVATAR,
+    default : "https://asset.cloudinary.com/goelparth11/9956ead5f6057ba9286698c1bb168e23",
 },
 bio : {
     type : String,
