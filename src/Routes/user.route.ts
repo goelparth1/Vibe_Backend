@@ -15,7 +15,7 @@ const errorsafeAuth = asyncHandler(authMiddleware);
 
 router.route("/register").post(asyncHandler(registerUser));
 
-router.route("/login").get(asyncHandler(loginUser));
+router.route("/login").post(asyncHandler(loginUser));
 
 router.route("/logout").get(errorsafeAuth,asyncHandler(logOut));
 

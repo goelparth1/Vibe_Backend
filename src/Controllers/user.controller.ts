@@ -109,6 +109,8 @@ const loginUser = async ( req :Request, res :Response , next : NextFunction  ) =
     let loginUserZodSchema;
     let safeParsedLoginUserZodSchema;
     let searchedUser;
+
+    console.log("Iam here in signIN User ")
     if(email){
         loginUserZodSchema = userZodSchema.pick({email : true, password : true});
         safeParsedLoginUserZodSchema = loginUserZodSchema.safeParse({email, password});
