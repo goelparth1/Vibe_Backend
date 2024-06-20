@@ -26,6 +26,7 @@ const uploadToCloudinary = async ( filePath : string, typeOFUpload : "image"|"vi
           unique_filename : true, 
           overwrite : false,//will delete and add a new one
           auto_tagging : 0.6,
+          flags : "sanitize",
         }
      )
 
