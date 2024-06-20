@@ -2,6 +2,11 @@ import express from "express";
 import cors from "cors";
 import cookieparser from "cookie-parser";
 import { Types } from "mongoose";
+import path from "node:path";
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
+const __dirname = path.dirname(__filename);
 
 const app = express();
 
@@ -50,6 +55,10 @@ import postRouter from "./Routes/post.route.js";
 app.use("/api/v1/post",postRouter);
 
 
+
+app.get("/public/temp/:id",(req,res)=>{
+  res.sendFile(`${__dirname}/temp/${req.params.id}`);
+})
 //global catches 
 // app.use((req:Request,res:Response,next:,err) =>{
 
