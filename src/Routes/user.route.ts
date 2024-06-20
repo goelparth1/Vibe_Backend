@@ -26,4 +26,6 @@ router.route("/getUser").get(errorsafeAuth,asyncHandler(getUser));
 router.route("/updateUser").patch(errorsafeAuth,asyncHandler(updateUser));
 
 
+
+
 export default router;
