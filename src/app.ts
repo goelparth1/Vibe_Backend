@@ -45,7 +45,9 @@ app.use(express.static("public"));
 //import userRouter
 import userRouter from "./Routes/user.route.js";
 app.use("/api/v1/user",userRouter);
-
+//import postRouter
+import postRouter from "./Routes/post.route.js";
+app.use("/api/v1/post",postRouter);
 
 
 //global catches 
